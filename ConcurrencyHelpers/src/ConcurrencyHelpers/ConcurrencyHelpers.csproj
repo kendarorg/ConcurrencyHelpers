@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{12785E79-30B0-4959-A46C-D833D502605B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ConcurrencyHelpers</RootNamespace>
+    <AssemblyName>ConcurrencyHelpers</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Containers\Asyncs\AsyncCollectionEventType.cs" />
+    <Compile Include="Containers\Asyncs\AsyncCollectionRequest.cs" />
+    <Compile Include="Containers\Asyncs\AsyncLockFreeDictionary.cs" />
+    <Compile Include="Containers\Asyncs\AsyncLockFreeList.cs" />
+    <Compile Include="Containers\Asyncs\AsyncLockFreeListEnumerator.cs" />
+    <Compile Include="Containers\LockFreeItem.cs" />
+    <Compile Include="Containers\LockFreeQueue.cs" />
+    <Compile Include="Deprec\Coroutines\Bool.cs" />
+    <Compile Include="Deprec\Coroutines\Container.cs" />
+    <Compile Include="Deprec\Coroutines\Coroutine.cs" />
+    <Compile Include="Deprec\Coroutines\CoroutineStack.cs" />
+    <Compile Include="Deprec\Coroutines\CoroutineStatus.cs" />
+    <Compile Include="Deprec\Coroutines\CoroutineTestThread.cs" />
+    <Compile Include="Deprec\Coroutines\CoroutineThread.cs" />
+    <Compile Include="Deprec\Coroutines\CoroutineThreadStatus.cs" />
+    <Compile Include="Deprec\Coroutines\EnumeratorWrapper.cs" />
+    <Compile Include="Deprec\Coroutines\ICoroutine.cs" />
+    <Compile Include="Deprec\Coroutines\IEnumerabl.cs" />
+    <Compile Include="Deprec\Coroutines\InterceptedStep.cs" />
+    <Compile Include="Deprec\Coroutines\IValuesCollection.cs" />
+    <Compile Include="Deprec\Coroutines\NullCoroutine.cs" />
+    <Compile Include="Deprec\Coroutines\Step.cs" />
+    <Compile Include="Deprec\EventCoroutines\BaseEventHandler.cs" />
+    <Compile Include="Deprec\EventCoroutines\CoroutineEventDescriptor.cs" />
+    <Compile Include="Deprec\EventCoroutines\CoroutineEventThread.cs" />
+    <Compile Include="Deprec\EventCoroutines\EventDispatcher.cs" />
+    <Compile Include="Deprec\EventCoroutines\EventManagerCoroutine.cs" />
+    <Compile Include="Deprec\EventCoroutines\EventMessage.cs" />
+    <Compile Include="Deprec\EventCoroutines\ExecEventCoroutine.cs" />
+    <Compile Include="Deprec\EventCoroutines\IEventHandler.cs" />
+    <Compile Include="Deprec\Utils\CounterInt64.cs" />
+    <Compile Include="Interfaces\ElapsedTimerEventArgs.cs" />
+    <Compile Include="Interfaces\IQueue.cs" />
+    <Compile Include="Interfaces\ITimer.cs" />
+    <Compile Include="Monitor\BaseMetric.cs" />
+    <Compile Include="Monitor\CollectedPerfDataEventArgs.cs" />
+    <Compile Include="Monitor\FilePerfMonService.cs" />
+    <Compile Include="Monitor\MetricVariable.cs" />
+    <Compile Include="Monitor\ObjectVariable.cs" />
+    <Compile Include="Monitor\PerfMon.cs" />
+    <Compile Include="Monitor\RunAndExcutionCounterMetric.cs" />
+    <Compile Include="Monitor\StatusMetric.cs" />
+    <Compile Include="Monitor\ValueCounterMetric.cs" />
+    <Compile Include="Monitor\ValueSample.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\ConcurrentBool.cs" />
+    <Compile Include="Utils\ConcurrentInt64.cs" />
+    <Compile Include="Utils\SystemTimer.cs" />
+    <Compile Include="Utils\ThreadingTimer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ConcurrencyHelpers.nuspec" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
