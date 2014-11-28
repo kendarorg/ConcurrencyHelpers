@@ -15,4 +15,9 @@ call dobuild_single CoroutinesLib 4.0 net40 %CD%\src\CoroutinesLib
 
 call dobuild_nuget CoroutinesLib %CD%\src\CoroutinesLib
 
+call dobuild_single CoroutinesLib.TestHelpers 4.5 net45 %CD%\utils\CoroutinesLib.TestHelpers
+call dobuild_single CoroutinesLib.TestHelpers 4.0 net40 %CD%\utils\CoroutinesLib.TestHelpers
+
+call dobuild_nuget CoroutinesLib.TestHelpers %CD%\utils\CoroutinesLib.TestHelpers
+
 pause
