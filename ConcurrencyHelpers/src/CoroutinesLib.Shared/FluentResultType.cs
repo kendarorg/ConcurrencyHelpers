@@ -30,7 +30,8 @@ namespace CoroutinesLib.Shared
 		WaitForCompletion = 0x100,
 		Waiting=0x200,
 		CoroutineFunction=0x400,
-		FunctionWithoutResult=0x800,
-		AsCoroutine=0x1000
+		FunctionWithoutResult = 0x800,
+		AsCoroutine = 0x1000,
+		AsTask = 0x2000
 	}
 }

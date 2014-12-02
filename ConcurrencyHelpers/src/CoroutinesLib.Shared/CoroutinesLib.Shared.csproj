@@ -56,6 +56,7 @@
     <Compile Include="Exceptions\MessageTimeoutException.cs" />
     <Compile Include="Exceptions\RunningStatusException.cs" />
     <Compile Include="FluentInterfaces.cs" />
+    <Compile Include="FluentResultBuilder.cs" />
     <Compile Include="FluentResultType.cs" />
     <Compile Include="ICoroutineThread.cs" />
     <Compile Include="ICoroutineResult.cs" />

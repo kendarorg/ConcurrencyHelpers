@@ -31,23 +31,33 @@ namespace CoroutinesLib
 {
 	public class CoroutinesManager : ICoroutinesManager, ILoggable
 	{
+		internal class CoroutineQueueContent
+		{
+			public CoroutineQueueContent(ICoroutineThread coroutine, Action<Exception> onError)
+			{
+				Coroutine = coroutine;
+				OnError = onError;
+			}
+			public ICoroutineThread Coroutine { get; private set; }
+			public Action<Exception> OnError { get; private set; }
+		}
 		private const int PAUSE_WAIT_MS = 10;
 		private readonly Thread _thread;
-		private readonly ConcurrentQueue<ICoroutineThread> _coroutinesQueue;
+		private readonly ConcurrentQueue<CoroutineQueueContent> _coroutinesQueue;
 		private readonly List<CoroutineInstance> _running;
 
 		private ConcurrentInt64 _status = new ConcurrentInt64((long)RunningStatus.None);
 		private readonly LockFreeItem<string> _actionRequested = new LockFreeItem<string>(null);
 		private readonly LockFreeItem<object> _actionRequestedResult = new LockFreeItem<object>(null);
 
-		public void StartCoroutine(ICoroutineThread coroutineThreadToStart)
+		public void StartCoroutine(ICoroutineThread coroutineThreadToStart, Action<Exception> onError = null)
 		{
 			var loggable = coroutineThreadToStart as ILoggable;
 			if (loggable != null)
 			{
 				loggable.Log = Log;
 			}
-			_coroutinesQueue.Enqueue(coroutineThreadToStart);
+			_coroutinesQueue.Enqueue(new CoroutineQueueContent(coroutineThreadToStart,onError));
 		}
 
 		public IMessageBus MessageBus { get; private set; }
@@ -93,7 +103,7 @@ namespace CoroutinesLib
 			ThreadsCount = 1;
 			Log = NullLogger.Create();
 			MessageBus = new MessageBus();
-			_coroutinesQueue = new ConcurrentQueue<ICoroutineThread>();
+			_coroutinesQueue = new ConcurrentQueue<CoroutineQueueContent>();
 			_running = new List<CoroutineInstance>();
 			_thread = new Thread(Run);
 		}
@@ -220,11 +230,13 @@ namespace CoroutinesLib
 		private void HandleCoroutines(Queue<CoroutineInstance> removeIds)
 		{
 			ICoroutineThread newCoroutineThread;
-
-			while (_coroutinesQueue.TryDequeue(out newCoroutineThread))
+			CoroutineQueueContent newCoroutineContent;
+			
+			while (_coroutinesQueue.TryDequeue(out newCoroutineContent))
 			{
+				newCoroutineThread = newCoroutineContent.Coroutine;
 				MessageBus.Register(newCoroutineThread);
-				var instance = new CoroutineInstance(newCoroutineThread);
+				var instance = new CoroutineInstance(newCoroutineThread, newCoroutineContent.OnError);
 				_running.Add(instance);
 			}
 
@@ -308,6 +320,10 @@ namespace CoroutinesLib
 			try
 			{
 				shouldTerminate = coroutine.OnError(ex);
+				if (instance.OnError != null)
+				{
+					instance.OnError(ex);
+				}
 			}
 			catch (Exception)
 			{

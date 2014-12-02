@@ -13,6 +13,8 @@
 // ===========================================================
 
 
+using System.Reflection;
+using System.Threading;
 using CoroutinesLib.Shared.Enumerators;
 using CoroutinesLib.Shared.Enums;
 using CoroutinesLib.Shared.Exceptions;
@@ -24,9 +26,49 @@ namespace CoroutinesLib.Shared
 {
 	public abstract class CoroutineResult : ICoroutineResult
 	{
+		static CoroutineResult()
+		{
+			var type = Type.GetType("CoroutinesLib.RunnerFactory,CoroutinesLib");
+			if (type != null)
+			{
+				_createMethod = type.GetMethod("Create", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+			}
+		}
+
+		public static Task WaitForCoroutine(ICoroutineThread toRun)
+		{
+			Exception problem = null;
+			var onError = new Action<Exception>((ex) =>
+			{
+				problem = ex;
+			});
+			var cmanager = (ICoroutinesManager)_createMethod.Invoke(null, new object[] { });
+			cmanager.StartCoroutine(toRun, onError);
+			var waitSlim = new ManualResetEventSlim(false);
+			var task = new Task(() =>
+			{
+				while ((long)RunningStatus.NotRunning > (long)toRun.Status)
+				{
+					waitSlim.Wait(50);
+				}
+				while (!toRun.Status.Is(RunningStatus.NotRunning))
+				{
+					waitSlim.Wait(50);
+				}
+				if (problem != null)
+				{
+					throw new Exception("Error running subtask", problem);
+				}
+			}, TaskCreationOptions.AttachedToParent);
+			task.Start();
+			return task;
+		}
+
+
 		public static IMessageBus MessageBus { get; set; }
 
 		public static CoroutineResult _wait = new ConcreteCoroutineResult(ResultType.Wait);
+		private static MethodInfo _createMethod;
 
 		public bool ShouldWait
 		{
@@ -35,7 +77,7 @@ namespace CoroutinesLib.Shared
 
 		public static ICoroutineResult Enumerable(IEnumerable<ICoroutineResult> enumerable, string name)
 		{
-			var result = new CoroutineResultEnumerator(string.Format("Enumerator for '{0}'.", name),enumerable.GetEnumerator());
+			var result = new CoroutineResultEnumerator(string.Format("Enumerator for '{0}'.", name), enumerable.GetEnumerator());
 			return result;
 		}
 
@@ -180,7 +222,7 @@ namespace CoroutinesLib.Shared
 				}
 				catch (Exception)
 				{
-					
+
 				}
 				// ReSharper restore EmptyGeneralCatchClause
 			}

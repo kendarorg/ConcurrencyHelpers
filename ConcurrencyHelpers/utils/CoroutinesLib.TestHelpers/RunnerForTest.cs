@@ -40,12 +40,12 @@ namespace CoroutinesLib.TestHelpers
 			_runner = runner;
 		}
 
-		public void StartCoroutine(ICoroutineThread coroutineThreadToStart)
+		public void StartCoroutine(ICoroutineThread coroutineThreadToStart, Action<Exception> onError = null)
 		{
-			_runner.StartCoroutine(coroutineThreadToStart);
+			_runner.StartCoroutine(coroutineThreadToStart, onError);
 		}
 
-		public void RunCycleFor(int milliseconds,Action onEach=null)
+		public void RunCycleFor(int milliseconds, Action onEach = null)
 		{
 			var task = Task.Factory.StartNew(() =>
 			{
@@ -53,7 +53,7 @@ namespace CoroutinesLib.TestHelpers
 				sw.Start();
 				while (sw.ElapsedMilliseconds < milliseconds)
 				{
-					
+
 					RunCycle();
 					Thread.Sleep(1);
 					if (onEach != null)
@@ -116,7 +116,7 @@ namespace CoroutinesLib.TestHelpers
 
 		public IEnumerable<ICoroutineThread> ListCoroutines()
 		{
-			return ((ICoroutinesManager) _runner).ListCoroutines();
+			return ((ICoroutinesManager)_runner).ListCoroutines();
 		}
 
 		public ILogger Log { get; set; }

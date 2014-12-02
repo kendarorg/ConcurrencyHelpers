@@ -14,6 +14,7 @@
 
 
 using System.Threading;
+using System.Threading.Tasks;
 using CoroutinesLib.Shared;
 using CoroutinesLib.Shared.Exceptions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -181,6 +182,12 @@ namespace CoroutinesLib.Test
 			throw new NotImplementedException();
 		}
 
+		private IEnumerable<ICoroutineResult> ExecuteAndThrowAfterInitialization()
+		{
+			yield return CoroutineResult.Wait;
+			throw new NotImplementedException();
+		}
+
 
 		private IEnumerable<ICoroutineResult> ExecuteAndTerminate()
 		{
@@ -212,7 +219,7 @@ namespace CoroutinesLib.Test
 				_cyclesRunExecuteNested++;
 				if (cycles == original / 2)
 				{
-					yield return CoroutineResult.Run(Execute(original),"Execute")
+					yield return CoroutineResult.Run(Execute(original), "Execute")
 						.WithTimeout(TimeSpan.FromMinutes(10))
 						.AndWait();
 					cycles--;
@@ -238,7 +245,7 @@ namespace CoroutinesLib.Test
 			target.TestInitialize();
 
 			target.StartCoroutine(coroutine.Object);
-			
+
 			target.TestRun(20);
 
 			Assert.AreEqual(10, _cyclesRunSimpleExecute);
@@ -313,7 +320,7 @@ namespace CoroutinesLib.Test
 		}
 
 
-		
+
 
 		private IEnumerable<ICoroutineResult> ExecuteNestedAndThrowInsideNested(int cycles = 1)
 		{
@@ -323,7 +330,7 @@ namespace CoroutinesLib.Test
 				_cyclesRunExecuteNested++;
 				if (cycles == original / 2)
 				{
-					yield return CoroutineResult.Enumerable(ExecuteAndThrowInstantly(),"ExecuteAndThrowInstantly");
+					yield return CoroutineResult.Enumerable(ExecuteAndThrowInstantly(), "ExecuteAndThrowInstantly");
 					cycles--;
 				}
 				else
@@ -352,7 +359,7 @@ namespace CoroutinesLib.Test
 				});
 
 			var target = new CoroutinesManager();
-			
+
 			target.StartCoroutine(coroutine.Object);
 
 			target.Start();
@@ -393,6 +400,94 @@ namespace CoroutinesLib.Test
 			coroutine.Verify(a => a.OnError(It.IsAny<Exception>()), Times.Once);
 			coroutine.Verify(a => a.OnError(It.IsAny<ManagerStoppedException>()), Times.Once);
 			coroutine.Verify(a => a.OnDestroy(), Times.AtMostOnce);
+		}
+		#endregion
+
+		#region Coroutines as Tasks
+
+		private class ExeCoRoutine : CoroutineBase
+		{
+			public int Cycles = 0;
+			public IEnumerator<ICoroutineResult> Enumerable;
+
+			public override void Initialize()
+			{
+				
+			}
+
+			public override IEnumerable<ICoroutineResult> OnCycle()
+			{
+				if (!Enumerable.MoveNext())
+				{
+					yield return CoroutineResult.YieldBreak();
+					TerminateElaboration();
+				}
+				else
+				{
+					Cycles++;
+					yield return Enumerable.Current;
+				}
+			}
+
+			public override void OnEndOfCycle()
+			{
+
+			}
+		}
+
+		[TestMethod]
+		public void RunningACoroutineFromEverywhere()
+		{
+			var coroutine = new ExeCoRoutine();
+			coroutine.Enumerable = Execute().GetEnumerator();
+
+			var target = new CoroutinesManager();
+			target.TestInitialize();
+			RunnerFactory.Initialize(() => target);
+
+			target.Start();
+			var parent = Task.Run(() =>
+			{
+				var task = CoroutineResult.WaitForCoroutine(coroutine);
+				task.Wait();
+			});
+
+			parent.Wait();
+			target.Stop();
+
+			Assert.AreEqual(1, coroutine.Cycles);
+		}
+
+		[TestMethod]
+		public void RunningACoroutineFromEverywhereShouldPropagateExceptions()
+		{
+			var coroutine = new ExeCoRoutine();
+			coroutine.Enumerable = ExecuteAndThrowAfterInitialization().GetEnumerator();
+
+			var target = new CoroutinesManager();
+			target.TestInitialize();
+			RunnerFactory.Initialize(() => target);
+
+			target.Start();
+			var parent = Task.Run(() =>
+			{
+				var task = CoroutineResult.WaitForCoroutine(coroutine);
+				task.Wait();
+			});
+
+			Exception expected = null;
+			try
+			{
+				
+				parent.Wait();
+			}
+			catch (Exception ex)
+			{
+				expected = ex;
+			}
+			target.Stop();
+
+			Assert.IsNotNull(expected);
 		}
 		#endregion
 	}

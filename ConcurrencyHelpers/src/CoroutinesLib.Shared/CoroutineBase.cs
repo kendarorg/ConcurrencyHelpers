@@ -74,6 +74,7 @@ namespace CoroutinesLib.Shared
 
 		public virtual bool OnError(Exception exception)
 		{
+			Status = RunningStatus.Exception;
 			return true;
 		}
 

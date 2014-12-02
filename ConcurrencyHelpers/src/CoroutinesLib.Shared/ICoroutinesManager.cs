@@ -13,15 +13,16 @@
 // ===========================================================
 
 
+using System;
 using CoroutinesLib.Shared.Enums;
 using System.Collections.Generic;
 using CoroutinesLib.Shared.Logging;
 
 namespace CoroutinesLib.Shared
 {
-	public interface ICoroutinesManager:ILoggable
+	public interface ICoroutinesManager : ILoggable
 	{
-		void StartCoroutine(ICoroutineThread coroutineThreadToStart);
+		void StartCoroutine(ICoroutineThread coroutineThreadToStart, Action<Exception> onError = null);
 		IMessageBus MessageBus { get; }
 
 		void Start();

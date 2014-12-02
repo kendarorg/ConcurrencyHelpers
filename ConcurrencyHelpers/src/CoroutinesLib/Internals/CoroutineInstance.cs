@@ -13,6 +13,7 @@
 // ===========================================================
 
 
+using System;
 using CoroutinesLib.Shared;
 using CoroutinesLib.Shared.Enumerators;
 using CoroutinesLib.Shared.Logging;
@@ -21,9 +22,10 @@ namespace CoroutinesLib.Internals
 {
 	internal class CoroutineInstance
 	{
-		public CoroutineInstance(ICoroutineThread coroutineThread)
+		public CoroutineInstance(ICoroutineThread coroutineThread, Action<Exception> onError)
 		{
 			Coroutine = coroutineThread;
+			OnError = onError;
 		}
 
 		internal bool IsInitialized { get; set; }
@@ -43,6 +45,7 @@ namespace CoroutinesLib.Internals
 		}
 
 		public ICoroutineThread Coroutine { get; private set; }
+		public Action<Exception> OnError { get; private set; }
 		public CoroutineResultEnumerator Enumerators { get; private set; }
 
 		public string BuildRunningStatus()
