@@ -12,6 +12,7 @@ TestResults
 *.suo
 *.user
 *.sln.docstates
+dobuild_env.bat
 
 # Build results
 [Dd]ebug/
